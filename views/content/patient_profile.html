@@ -1,0 +1,73 @@
+<div class="container mt-5">
+    <h1>Patient Details</h1>
+    <div id="patientDetail"></div>
+</div>
+<script>
+    const patientId = window.location.hash.substring(1);
+
+    if (!patientId) {
+        alert('No patient ID provided');
+    } else {
+        fetch(`/api/patients/${patientId}`)
+            .then((response) => {
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        throw new Error("Patient not found");
+                    } else {
+                        throw new Error("Error loading patient data");
+                    }
+                }
+                return response.json();
+            })
+            .then((patient) => {
+                const patientDetailDiv = document.getElementById('patientDetail');
+
+                if (patient) {
+                    const patientHTML = `
+                        <p><strong>ID:</strong> ${patient.id}</p>
+                        <p><strong>Name:</strong> ${patient.first_name} ${patient.last_name}</p>
+                        <p><strong>Gender:</strong> ${patient.gender}</p>
+                        <p><strong>Age:</strong> ${patient.age}</p>
+                        <p><strong>Health Card Number:</strong> ${patient.health_card_number}</p>
+                        <p><strong>Email:</strong> ${patient.email_address}</p>
+                        <p><strong>Phone:</strong> ${patient.phone_number}</p>
+                        <p><strong>Address:</strong> ${patient.address}</p>
+                    `;
+                    patientDetailDiv.innerHTML = patientHTML;
+                } else {
+                    patientDetailDiv.innerHTML = `<p>Patient not found.</p>`;
+                }
+            })
+            .catch((error) => {
+                console.error("Error fetching patient data:", error);
+                const patientDetailDiv = document.getElementById('patientDetail');
+                patientDetailDiv.innerHTML = `<p>${error.message}</p>`;
+            });
+    }
+</script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7fc;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: #4CAF50;
+        }
+        #patientDetail p strong {
+            color: #333;
+            font-weight: bold;
+        }
+    </style>

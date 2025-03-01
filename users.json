@@ -1,0 +1,24 @@
+{
+  "users": [
+    {
+      "Role": "Patient",
+      "Username": "bbaggins@example.com",
+      "Password": "123456"
+    },
+    {
+      "Role": "Admin",
+      "Username": "bency@example.com",
+      "Password": "789097"
+    },
+    {
+      "Role": "Patient",
+      "Username": "admin@example.com",
+      "Password": "555555"
+    },
+    {
+      "Role": "Patient",
+      "Username": "ben24@gmail.com",
+      "Password": "hello"
+    }
+  ]
+}

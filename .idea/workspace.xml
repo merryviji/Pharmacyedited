@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="de33d6a0-90c7-4de8-927d-7139153e3c2e" name="Changes" comment="commit" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="TypeScript File" />
+        <option value="JavaScript File" />
+        <option value="HTML File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4
+}</component>
+  <component name="ProjectId" id="2f26KW4xA3cT0VFCAzHfGQm37UW" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultHtmlFileTemplate": "HTML File",
+    "JavaScript Debug.index.html.executor": "Run",
+    "Node.js.check_patients.js.executor": "Run",
+    "Node.js.server.js.executor": "Run",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "master",
+    "last_opened_file_path": "C:/Users/merry/OneDrive/Desktop/project/Pharmacy/Pharmacy",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "yarn",
+    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\WebStorm 2023.3.2\\plugins\\javascript-impl\\jsLanguageServicesImpl\\external",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\bency\Documents\Durham College\SEMESTER6\Capstone_Project\Pharmacy\script" />
+      <recent name="C:\Users\bency\Documents\Durham College\SEMESTER6\Capstone_Project\Pharmacy\data" />
+      <recent name="C:\Users\bency\Documents\Durham College\SEMESTER6\Capstone_Project\Pharmacy" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\bency\Documents\Durham College\SEMESTER6\Capstone_Project\Pharmacy\views\content" />
+      <recent name="C:\Users\bency\Documents\Durham College\SEMESTER6\Capstone_Project\Pharmacy" />
+      <recent name="C:\Users\bency\Documents\Durham College\SEMESTER6\Capstone_Project\Pharmacy\public" />
+      <recent name="C:\Users\bency\Documents\Durham College\SEMESTER6\Capstone_Project\Pharmacy\views" />
+      <recent name="C:\Users\bency\Documents\Durham College\SEMESTER6\Capstone_Project\Pharmacy\script" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="server.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="$PROJECT_DIR$/server.js" working-dir="$PROJECT_DIR$">
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Node.js.server.js" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="de33d6a0-90c7-4de8-927d-7139153e3c2e" name="Changes" comment="" />
+      <created>1712986762039</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1712986762039</updated>
+      <workItem from="1712986763069" duration="1598000" />
+      <workItem from="1738770034142" duration="41000" />
+      <workItem from="1739193418233" duration="88000" />
+      <workItem from="1739193516258" duration="74000" />
+      <workItem from="1739193621405" duration="40000" />
+      <workItem from="1739194127231" duration="13000" />
+      <workItem from="1739194170008" duration="35000" />
+      <workItem from="1739194734029" duration="46000" />
+      <workItem from="1739194781123" duration="36837000" />
+      <workItem from="1739307327828" duration="26303000" />
+      <workItem from="1739472847930" duration="3202000" />
+      <workItem from="1740079842603" duration="840000" />
+      <workItem from="1740444516878" duration="3807000" />
+      <workItem from="1740580889253" duration="28947000" />
+      <workItem from="1740783441168" duration="5259000" />
+      <workItem from="1740803435697" duration="133000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+    <option name="exactExcludedFiles">
+      <list>
+        <option value="$PROJECT_DIR$/script/router.js" />
+        <option value="$PROJECT_DIR$/script/router.js.map" />
+        <option value="$PROJECT_DIR$/script/app.js" />
+        <option value="$PROJECT_DIR$/script/app.js.map" />
+        <option value="$PROJECT_DIR$/script/namespace.js" />
+        <option value="$PROJECT_DIR$/script/namespace.js.map" />
+        <option value="$PROJECT_DIR$/server.js" />
+        <option value="$PROJECT_DIR$/server.js.map" />
+        <option value="$PROJECT_DIR$/script/user.js" />
+        <option value="$PROJECT_DIR$/script/user.js.map" />
+      </list>
+    </option>
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="commit" />
+    <option name="LAST_COMMIT_MESSAGE" value="commit" />
+  </component>
+</project>

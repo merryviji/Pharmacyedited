@@ -1,0 +1,57 @@
+[
+  {
+    "id": "001",
+    "firstName": "Merry",
+    "lastName": "Viji",
+    "gender": "Female",
+    "age": 21,
+    "healthCardNumber": 123456789,
+    "emailAddress": "merryviji@gmail.com",
+    "phoneNumber": 2896714412,
+    "address": "11 Simcoe Street "
+  },
+  {
+    "id": "002",
+    "firstName": "Meng",
+    "lastName": "Cai",
+    "gender": "Female",
+    "age": 21,
+    "healthCardNumber": 123456789,
+    "emailAddress": "mengcai@gmail.com",
+    "phoneNumber": 2896714412,
+    "address": "12 Simcoe Street "
+  },
+  {
+    "id": "003",
+    "firstName": "Bency",
+    "lastName": "Daniel Binu",
+    "gender": "Male",
+    "age": 21,
+    "healthCardNumber": 123456789,
+    "emailAddress": "bencybinu@gmail.com",
+    "phoneNumber": 2896714412,
+    "address": "13 Simcoe Street "
+  },
+  {
+    "id": "004",
+    "firstName": "Jubin",
+    "lastName": "Boban",
+    "gender": "Male",
+    "age": 21,
+    "healthCardNumber": 123456789,
+    "emailAddress": "jubinboban@gmail.com",
+    "phoneNumber": 2896714412,
+    "address": "14 Simcoe Street "
+  },
+  {
+    "id": "005",
+    "firstName": "ben",
+    "lastName": "dan",
+    "gender": "Male",
+    "age": 21,
+    "healthCardNumber": "41451451",
+    "emailAddress": "ben24@gmail.com",
+    "phoneNumber": "515155151",
+    "address": "hai hello"
+  }
+]

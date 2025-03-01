@@ -1,0 +1,94 @@
+<div class="row">
+    <div class="offset-md-3 col-md-6 col-sm-12">
+        <br><br>
+        <div class="login" id="contentArea">
+            <h1 class="display-4">Register</h1>
+
+            <div id="messageArea"></div>
+
+            <form id="registerForm"  action="/register" method="POST" novalidate>
+                <p class="hint-text">Create your own account. It's free and only takes a minute.</p>
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input class="form-control" type="text" name="firstName" id="firstName" placeholder="First Name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <input class="form-control" type="text" name="lastName" id="lastName" placeholder="Last Name" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <input type="email" class="form-control" id="emailAddress" name="emailAddress" required placeholder="Email">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input class="form-control" type="text" name="address" id="address" placeholder="Address" required>
+                        </div>
+                        <div class="col-md-6">
+                            <input class="form-control" type="text" name="contactNumber" id="contactNumber" placeholder="Phone Number" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- New Gender and Age Fields -->
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <select class="form-control" name="gender" id="gender" required>
+                                <option value="" disabled selected>Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <input class="form-control" type="number" name="age" id="age" placeholder="Age" required min="1">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- New Health Card Number Field -->
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <input class="form-control" type="text" name="healthCardNumber" id="healthCardNumber" placeholder="Health Card Number" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <input type="password" class="form-control" id="password" name="password" required placeholder="Password">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required placeholder="Confirm Password">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-right">
+                    <button id="submitButton" type="submit" class="btn btn-primary btn-lg">Register</button>
+                </div>
+            </form>
+        </div>
+        <p class="text-center text-muted small">
+            Already have an account?
+            <a href="/login">Sign in</a>
+        </p>
+    </div>
+</div>

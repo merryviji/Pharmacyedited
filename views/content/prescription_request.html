@@ -1,0 +1,60 @@
+<div class="container-fluid mt-3">
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-10">
+
+            <div class="row">
+                <div class="col-md-8">
+                    <h3>Prescription Overview</h3>
+                    <table class="table table-bordered">
+                        <thead class="table-success">
+                        <tr>
+                            <th>Date</th>
+                            <th>Rx Num</th>
+                            <th>Medication</th>
+                            <th>Status</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="col-md-4">
+                    <h3>Pharmacy Information</h3>
+                    <div id="pharmacyInfo" class="border p-3 bg-light">
+                        <p><strong>Pharmacy Name:</strong> ABC Pharm</p>
+                        <p><strong>Contact Number:</strong> (123) 445-XXXX</p>
+                        <p><strong>Email:</strong> abc@yahoo.com</p>
+                        <p><strong>Last Visit:</strong> 2025-02-05</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <h3>Prescription Details</h3>
+                    <div id="prescriptionDetails" class="border p-3 bg-light">
+                        <p><strong>Rx Number:</strong> <span id="detailRxNumber"></span></p>
+                        <p><strong>Doctor:</strong> <span id="detailDoctor"></span></p>
+                        <p><strong>Issued Date:</strong> <span id="detailIssued"></span></p>
+                        <p><strong>End Date:</strong> <span id="detailEnd"></span></p>
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>Medication</th>
+                                <th>Dosage</th>
+                                <th>Notes</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                        <a id="refillPageLink" href="/prescription_request"" class="btn btn-success">Refill Request</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
