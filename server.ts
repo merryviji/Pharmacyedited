@@ -152,26 +152,22 @@ const server = http.createServer(async (req, res) => {
         }
     }else if (path.startsWith("/api/patients/email/") && req.method === "GET") {
         const email = decodeURIComponent(path.replace("/api/patients/email/", ""));
-
-        console.log("🔍 API request received for email lookup:", email);
+        
 
         try {
             const query = "SELECT * FROM patients WHERE TRIM(LOWER(email_address)) = TRIM(LOWER($1))";
             const result = await pool.query(query, [email]);
 
-            console.log("🔍 Query executed with:", email);
-            console.log("🔍 Query result:", result.rows);
-
             if (result.rows.length > 0) {
                 res.writeHead(200, { "Content-Type": "application/json" });
                 res.end(JSON.stringify(result.rows[0]));
             } else {
-                console.log("❌ Patient not found in database.");
+                console.log("Patient not found in database.");
                 res.writeHead(404, { "Content-Type": "application/json" });
                 res.end(JSON.stringify({ message: "Patient not found" }));
             }
         } catch (error) {
-            console.error("❌ Database error:", error);
+            console.error("Database error:", error);
             res.writeHead(500, { "Content-Type": "application/json" });
             res.end(JSON.stringify({ message: "Database query failed" }));
         }

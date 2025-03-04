@@ -1,5 +1,16 @@
 "use strict";
 
+interface Prescription {
+    rxnum: string;
+    name: string;
+    qty: number;
+    remaining: number;
+    total_authorised_qty: number;
+    dispensed_day: string;
+    day_qty: number;
+    doctor_cpso: string;
+}
+
 
 
 (function (){
@@ -341,10 +352,139 @@
 
 
 
-    function DisplayPrescriptionRequestPage(): void {
-        console.log("Called DisplayPrescriptionRequestPage()");
+    function DisplayPrescriptionRequestPage() {
+        console.log("DisplayPrescriptionRequestPage is running");
 
+        const userSession = sessionStorage.getItem("user");
+        if (!userSession) {
+            alert("You need to log in first.");
+            window.location.href = "/login";
+            return;
+        }
+
+        const user = JSON.parse(userSession);
+        const userEmail = user.username.trim(); // Get email from session
+
+        // Step 1: Fetch Patient ID using Email
+        fetch(`/api/patients/email/${userEmail}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to fetch patient ID");
+                }
+                return response.json();
+            })
+            .then(patient => {
+                if (!patient || !patient.id) {
+                    throw new Error("Patient record not found.");
+                }
+
+                const patientId = patient.id; // Extract patient ID
+                console.log("Retrieved Patient ID:", patientId);
+
+                // Step 2: Fetch Prescriptions using Patient ID
+                return fetch(`/api/prescriptions/${patientId}`);
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to fetch prescriptions");
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log("Fetched prescription data:", data);
+
+                const tableBody = document.getElementById("rxRequest") as HTMLTableSectionElement | null;
+                if (!tableBody) {
+                    console.error("Table body not found.");
+                    return;
+                }
+
+                if (data.length > 0) {
+                    tableBody.innerHTML = ""; // Clear previous content
+
+                    data.forEach((prescription: Prescription) => {
+                        let status: string = "";
+                        let action: string = "";
+
+                        if (prescription.remaining > 0) {
+                            status = `<span class="badge bg-success">Active</span>`;
+                            action = `<button class="btn btn-primary refill-btn" data-rx="${prescription.rxnum}">Request Refill</button>`;
+                        } else if (prescription.total_authorised_qty > 0) {
+                            status = `<span class="badge bg-warning">Needs Doctor Authorization</span>`;
+                            action = `<button class="btn btn-danger approval-btn" data-rx="${prescription.rxnum}">Request Doctor Approval</button>`;
+                        } else {
+                            status = `<span class="badge bg-danger">Expired</span>`;
+                            action = `<span class="text-muted">No Refills</span>`;
+                        }
+
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td>${new Date(prescription.dispensed_day).toLocaleDateString()}</td>
+                            <td>${prescription.rxnum}</td>
+                            <td>${prescription.name}</td>
+                            <td>${prescription.qty}</td>
+                            <td>${prescription.day_qty}</td>
+                            <td>${prescription.remaining}</td>
+                            <td>${prescription.total_authorised_qty}</td>
+                            <td>${status}</td>
+                            <td>${action}</td>
+                        `;
+                        document.getElementById("rxRequest")?.appendChild(row);
+                    });
+
+                    // Attach event listeners for refill requests
+                    document.querySelectorAll(".refill-btn").forEach((button) => {
+                        button.addEventListener("click", (event) => { // ✅ Use arrow function
+                            const rxnum: string | undefined = (event.currentTarget as HTMLButtonElement).dataset.rx;
+                            if (rxnum) {
+                                requestRefill(rxnum);
+                            } else {
+                                console.error("No RxNum found for refill request.");
+                            }
+                        });
+                    });
+
+
+                    // Attach event listeners for doctor approval requests
+                    document.querySelectorAll(".approval-btn").forEach(button => {
+                        button.addEventListener("click", function (this: HTMLButtonElement) {
+                            const rxnum: string | undefined = this.dataset.rx;
+                            if (rxnum) {
+                                requestDoctorApproval(rxnum);
+                            }
+                        });
+                    });
+
+
+                } else {
+                    tableBody.innerHTML = `<tr><td colspan="10">No prescriptions found.</td></tr>`;
+                }
+            })
+            .catch(error => console.error("Error:", error));
     }
+
+// Function to handle refill request
+    function requestRefill(rxnum: string) {
+        fetch(`/api/refill/${rxnum}`, { method: "POST" })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                location.reload(); // Refresh page
+            })
+            .catch(error => console.error("Error requesting refill:", error));
+    }
+
+// Function to handle doctor approval request
+    function requestDoctorApproval(rxnum: string) {
+        fetch(`/api/doctor_approval/${rxnum}`, { method: "POST" })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                location.reload(); // Refresh page
+            })
+            .catch(error => console.error("Error requesting doctor approval:", error));
+    }
+
 
 
 
@@ -411,16 +551,16 @@
                     data.forEach((prescription: any, index: number) => {
                         let status = "";
                         if (prescription.remaining > 0) {
-                            status = `<span class="badge bg-success">Active</span>`; // ✅ Can refill
+                            status = `<span class="badge bg-success">Active</span>`;
                         } else if (prescription.total_authorised_qty > 0) {
-                            status = `<span class="badge bg-warning">Needs Doctor Authorization</span>`; // ⏳ Doctor Approval Needed
+                            status = `<span class="badge bg-warning">Needs Doctor Authorization</span>`;
                         } else {
-                            status = `<span class="badge bg-danger">Expired</span>`; // ❌ No refills left
+                            status = `<span class="badge bg-danger">Expired</span>`;
                         }
 
                         const row = document.createElement("tr");
                         row.innerHTML = `
-                        <td>${prescription.dispensed_day}</td>
+                        <td>${new Date(prescription.dispensed_day).toLocaleDateString()}</td>
                         <td><a href="#" class="rx-link" data-index="${index}">${prescription.rxnum}</a></td>
                         <td>${prescription.name}</td>
                         <td>${status}</td> <!-- Dynamically added status -->
@@ -459,11 +599,11 @@
         // Determine status dynamically
         let status = "";
         if (prescription.remaining > 0) {
-            status = `<span class="badge bg-success">Active</span>`; // ✅ Can refill
+            status = `<span class="badge bg-success">Active</span>`;
         } else if (prescription.total_authorised_qty > 0) {
-            status = `<span class="badge bg-warning">Needs Doctor Authorization</span>`; // ⏳ Doctor Approval Needed
+            status = `<span class="badge bg-warning">Needs Doctor Authorization</span>`;
         } else {
-            status = `<span class="badge bg-danger">Expired</span>`; // ❌ No refills left
+            status = `<span class="badge bg-danger">Expired</span>`; 
         }
 
         // Update table with medication details
