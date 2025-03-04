@@ -144,9 +144,6 @@
             });
         }
     }
-    function DisplayPrescriptionRequestPage() {
-        console.log("Called DisplayPrescriptionRequestPage()");
-    }
     function DisplayLoginPage() {
         console.log("Called DisplayLoginPage()");
         let messageArea = $("#messageArea");
@@ -175,9 +172,9 @@
                     redirectURL = "/admin_dashboard";
                 }
                 else if (user.role === "Patient") {
-                    redirectURL = "/patient_list";
+                    redirectURL = "/patient_dashboard";
                 }
-                sessionStorage.setItem("user", newUser.serialize());
+                sessionStorage.setItem("user", JSON.stringify(user));
                 messageArea.removeAttr("class").hide();
                 location.href = redirectURL;
             })
@@ -258,6 +255,127 @@
             }
         });
     }
+    function DisplayPrescriptionRequestPage() {
+        console.log("Called DisplayPrescriptionRequestPage()");
+    }
+    function DisplayRequestProcessPage() {
+        console.log("Called DisplayRequestProcessPage()");
+    }
+    function DisplayPatientDashboardPage() {
+        console.log("DisplayPatientDashboardPage is running");
+        const userSession = sessionStorage.getItem("user");
+        if (!userSession) {
+            alert("You need to log in first.");
+            window.location.href = "/login";
+            return;
+        }
+        const user = JSON.parse(userSession);
+        const userEmail = user.username.trim();
+        fetch(`/api/patients/email/${userEmail}`)
+            .then(response => {
+            if (!response.ok) {
+                throw new Error("Failed to fetch patient ID");
+            }
+            return response.json();
+        })
+            .then(patient => {
+            if (!patient || !patient.id) {
+                throw new Error("Patient record not found.");
+            }
+            const patientId = patient.id;
+            console.log("Retrieved Patient ID:", patientId);
+            return fetch(`/api/prescriptions/${patientId}`);
+        })
+            .then(response => {
+            if (!response.ok) {
+                throw new Error("Failed to fetch prescriptions");
+            }
+            return response.json();
+        })
+            .then((data) => {
+            console.log("Fetched prescription data:", data);
+            const tableBody = document.getElementById("prescriptionTableBody");
+            if (!tableBody) {
+                console.error("Table body not found.");
+                return;
+            }
+            if (data.length > 0) {
+                tableBody.innerHTML = "";
+                data.forEach((prescription, index) => {
+                    let status = "";
+                    if (prescription.remaining > 0) {
+                        status = `<span class="badge bg-success">Active</span>`;
+                    }
+                    else if (prescription.total_authorised_qty > 0) {
+                        status = `<span class="badge bg-warning">Needs Doctor Authorization</span>`;
+                    }
+                    else {
+                        status = `<span class="badge bg-danger">Expired</span>`;
+                    }
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${prescription.dispensed_day}</td>
+                        <td><a href="#" class="rx-link" data-index="${index}">${prescription.rxnum}</a></td>
+                        <td>${prescription.name}</td>
+                        <td>${status}</td> <!-- Dynamically added status -->
+                    `;
+                    tableBody.appendChild(row);
+                });
+                updatePrescriptionDetails(data[0]);
+                document.querySelectorAll(".rx-link").forEach(link => {
+                    link.addEventListener("click", (event) => {
+                        event.preventDefault();
+                        const target = event.target;
+                        const index = parseInt(target.dataset.index);
+                        updatePrescriptionDetails(data[index]);
+                    });
+                });
+            }
+            else {
+                tableBody.innerHTML = `<tr><td colspan="4">No prescriptions found.</td></tr>`;
+            }
+        })
+            .catch(error => console.error("Error:", error));
+    }
+    function updatePrescriptionDetails(prescription) {
+        console.log("Updating prescription details:", prescription);
+        document.getElementById("detailRxNumber").textContent = prescription.rxnum;
+        document.getElementById("detailDoctor").textContent = prescription.doctor_cspo;
+        document.getElementById("detailIssued").textContent = prescription.dispensed_day;
+        let status = "";
+        if (prescription.remaining > 0) {
+            status = `<span class="badge bg-success">Active</span>`;
+        }
+        else if (prescription.total_authorised_qty > 0) {
+            status = `<span class="badge bg-warning">Needs Doctor Authorization</span>`;
+        }
+        else {
+            status = `<span class="badge bg-danger">Expired</span>`;
+        }
+        const detailBody = document.getElementById("prescriptionDetailTBody");
+        detailBody.innerHTML = "";
+        const row = document.createElement("tr");
+        row.innerHTML = `
+        <td>${prescription.name}</td>
+        <td>${prescription.day_qty} per day</td>
+        <td>${prescription.remaining} remaining</td>
+    `;
+        detailBody.appendChild(row);
+        const refillButton = document.getElementById("refillPageLink");
+        if (prescription.remaining > 0) {
+            refillButton.style.display = "inline-block";
+            refillButton.href = `/prescription_request?rxnum=${prescription.rxnum}`;
+            refillButton.textContent = "Request Refill";
+        }
+        else if (prescription.total_authorised_qty > 0) {
+            refillButton.style.display = "inline-block";
+            refillButton.href = `/doctor_approval_request?rxnum=${prescription.rxnum}`;
+            refillButton.textContent = "Request Doctor Authorization";
+        }
+        else {
+            refillButton.style.display = "none";
+        }
+    }
     function Display404Page() {
         console.log("Display404Page() Called..");
     }
@@ -286,6 +404,8 @@
             case "add_patient": return DisplayAddPatient;
             case "enter_prescription": return DisplayEnterPrescription;
             case "prescription_request": return DisplayPrescriptionRequestPage;
+            case "request_process": return DisplayRequestProcessPage;
+            case "patient_dashboard": return DisplayPatientDashboardPage;
             case "404": return Display404Page;
             default:
                 console.error("ERROR: Callback doesn't exist for ActiveLink - " + router.ActiveLink);

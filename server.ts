@@ -150,7 +150,57 @@ const server = http.createServer(async (req, res) => {
             res.writeHead(500, { "Content-Type": "application/json" });
             res.end(JSON.stringify({ error: "Internal Server Error" }));
         }
-    } else if (path.startsWith("/api/patients/") && req.method === "GET") {
+    }else if (path.startsWith("/api/patients/email/") && req.method === "GET") {
+        const email = decodeURIComponent(path.replace("/api/patients/email/", ""));
+
+        console.log("🔍 API request received for email lookup:", email);
+
+        try {
+            const query = "SELECT * FROM patients WHERE TRIM(LOWER(email_address)) = TRIM(LOWER($1))";
+            const result = await pool.query(query, [email]);
+
+            console.log("🔍 Query executed with:", email);
+            console.log("🔍 Query result:", result.rows);
+
+            if (result.rows.length > 0) {
+                res.writeHead(200, { "Content-Type": "application/json" });
+                res.end(JSON.stringify(result.rows[0]));
+            } else {
+                console.log("❌ Patient not found in database.");
+                res.writeHead(404, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ message: "Patient not found" }));
+            }
+        } catch (error) {
+            console.error("❌ Database error:", error);
+            res.writeHead(500, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ message: "Database query failed" }));
+        }
+    }
+
+    else if (path.startsWith("/api/prescriptions/") && req.method === "GET") {
+        const patientId = path.split("/").pop(); // Extract patient ID from the URL
+
+        console.log(`Fetching prescriptions for patient ID: ${patientId}`);
+
+        try {
+            const result = await pool.query("SELECT * FROM prescription WHERE patient_id = $1", [patientId]);
+
+            if (result.rows.length > 0) {
+                res.writeHead(200, { "Content-Type": "application/json" });
+                res.end(JSON.stringify(result.rows));
+            } else {
+                res.writeHead(404, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ message: "No prescriptions found for this patient" }));
+            }
+        } catch (error) {
+            console.error("Error fetching prescriptions:", error);
+            res.writeHead(500, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ error: "Internal Server Error" }));
+        }
+    }
+
+
+    else if (path.startsWith("/api/patients/") && req.method === "GET") {
         // Handle GET request to fetch a specific patient by ID
         const patientId = path.split("/").pop(); // Extract patient ID from the URL
 
@@ -158,18 +208,19 @@ const server = http.createServer(async (req, res) => {
             const result = await pool.query("SELECT * FROM patients WHERE id = $1", [patientId]);
 
             if (result.rows.length > 0) {
-                res.writeHead(200, { "Content-Type": "application/json" });
+                res.writeHead(200, {"Content-Type": "application/json"});
                 res.end(JSON.stringify(result.rows[0]));
             } else {
-                res.writeHead(404, { "Content-Type": "application/json" });
-                res.end(JSON.stringify({ message: "Patient not found" }));
+                res.writeHead(404, {"Content-Type": "application/json"});
+                res.end(JSON.stringify({message: "Patient not found"}));
             }
         } catch (error) {
             console.error("Error fetching patient data:", error);
-            res.writeHead(500, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ error: "Internal Server Error" }));
+            res.writeHead(500, {"Content-Type": "application/json"});
+            res.end(JSON.stringify({error: "Internal Server Error"}));
         }
-    } else if (path === "/api/users/login" && req.method === "POST") {
+
+} else if (path === "/api/users/login" && req.method === "POST") {
         // Handle POST request for user login
         let body = "";
         req.on("data", (chunk) => {
@@ -204,6 +255,8 @@ const server = http.createServer(async (req, res) => {
             filePath = "/home.html";
         } else if (
             path === "/prescription_request" ||
+            path === "/patient_dashboard" ||
+            path === "/request_process" ||
             path === "/login" ||
             path === "/patient_list" ||
             path === "/admin_dashboard" ||

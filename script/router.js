@@ -49,6 +49,8 @@ router.AddTable([
     "/",
     "/home",
     "/prescription_request",
+    "/request_process",
+    "/patient_dashboard",
     "/admin_dashboard",
     "/login",
     "/patient_list",

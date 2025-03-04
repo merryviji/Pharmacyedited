@@ -4,7 +4,24 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="de33d6a0-90c7-4de8-927d-7139153e3c2e" name="Changes" comment="commit" />
+    <list default="true" id="de33d6a0-90c7-4de8-927d-7139153e3c2e" name="Changes" comment="commit">
+      <change afterPath="$PROJECT_DIR$/views/content/patient_dashboard.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/views/content/request_process.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/script/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/script/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/script/app.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/script/app.js.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/script/app.ts" beforeDir="false" afterPath="$PROJECT_DIR$/script/app.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/script/namespace.js" beforeDir="false" afterPath="$PROJECT_DIR$/script/namespace.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/script/router.js" beforeDir="false" afterPath="$PROJECT_DIR$/script/router.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/script/router.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/script/router.js.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/script/router.ts" beforeDir="false" afterPath="$PROJECT_DIR$/script/router.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/script/user.js" beforeDir="false" afterPath="$PROJECT_DIR$/script/user.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/server.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/server.js.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server.ts" beforeDir="false" afterPath="$PROJECT_DIR$/server.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/components/header.html" beforeDir="false" afterPath="$PROJECT_DIR$/views/components/header.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/content/prescription_request.html" beforeDir="false" afterPath="$PROJECT_DIR$/views/content/prescription_request.html" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -34,26 +51,26 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultHtmlFileTemplate": "HTML File",
-    "JavaScript Debug.index.html.executor": "Run",
-    "Node.js.check_patients.js.executor": "Run",
-    "Node.js.server.js.executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "master",
-    "last_opened_file_path": "C:/Users/merry/OneDrive/Desktop/project/Pharmacy/Pharmacy",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "yarn",
-    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\WebStorm 2023.3.2\\plugins\\javascript-impl\\jsLanguageServicesImpl\\external",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;JavaScript Debug.index.html.executor&quot;: &quot;Run&quot;,
+    &quot;Node.js.check_patients.js.executor&quot;: &quot;Run&quot;,
+    &quot;Node.js.server.js.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Study/Durham college-S6/Capstone/Pharmacy_Data/Pharmacyedited&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;yarn&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\WebStorm 2023.3.2\\plugins\\javascript-impl\\jsLanguageServicesImpl\\external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\bency\Documents\Durham College\SEMESTER6\Capstone_Project\Pharmacy\script" />
@@ -102,6 +119,8 @@
       <workItem from="1740580889253" duration="28947000" />
       <workItem from="1740783441168" duration="5259000" />
       <workItem from="1740803435697" duration="133000" />
+      <workItem from="1741039521495" duration="132000" />
+      <workItem from="1741039671079" duration="9004000" />
     </task>
     <servers />
   </component>

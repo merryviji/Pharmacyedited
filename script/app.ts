@@ -203,13 +203,6 @@
 
 
 
-    function DisplayPrescriptionRequestPage(): void {
-        console.log("Called DisplayPrescriptionRequestPage()");
-
-    }
-
-
-
 
 
     function DisplayLoginPage() {
@@ -244,11 +237,13 @@
                     if (user.role === "Admin") {
                         redirectURL = "/admin_dashboard"; // Redirect Admin
                     } else if (user.role === "Patient") {
-                        redirectURL = "/patient_list"; // Redirect Patient
+                        redirectURL = "/patient_dashboard"; // Redirect Patient
                     }
 
                     // Store user data in sessionStorage
-                    sessionStorage.setItem("user", newUser.serialize() as string);
+                    //sessionStorage.setItem("user", newUser.serialize() as string);
+                    sessionStorage.setItem("user", JSON.stringify(user));
+
                     messageArea.removeAttr("class").hide();
                     location.href = redirectURL; // Redirect user to the appropriate page
                 })
@@ -346,6 +341,164 @@
 
 
 
+    function DisplayPrescriptionRequestPage(): void {
+        console.log("Called DisplayPrescriptionRequestPage()");
+
+    }
+
+
+
+
+
+    function DisplayRequestProcessPage(): void {
+        console.log("Called DisplayRequestProcessPage()");
+
+    }
+
+
+
+    function DisplayPatientDashboardPage() {
+        console.log("DisplayPatientDashboardPage is running");
+
+        // Get user session
+        const userSession = sessionStorage.getItem("user");
+        if (!userSession) {
+            alert("You need to log in first.");
+            window.location.href = "/login";
+            return;
+        }
+
+        const user = JSON.parse(userSession);
+        const userEmail = user.username.trim(); // Get email from session
+
+        // Step 1: Fetch Patient ID using Email
+        fetch(`/api/patients/email/${userEmail}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to fetch patient ID");
+                }
+                return response.json();
+            })
+            .then(patient => {
+                if (!patient || !patient.id) {
+                    throw new Error("Patient record not found.");
+                }
+
+                const patientId = patient.id; // Extract patient ID
+                console.log("Retrieved Patient ID:", patientId);
+
+                // Step 2: Fetch Prescriptions using Patient ID
+                return fetch(`/api/prescriptions/${patientId}`);
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to fetch prescriptions");
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log("Fetched prescription data:", data);
+
+                const tableBody = document.getElementById("prescriptionTableBody") as HTMLTableSectionElement | null;
+                if (!tableBody) {
+                    console.error("Table body not found.");
+                    return;
+                }
+
+                if (data.length > 0) {
+                    tableBody.innerHTML = ""; // Clear previous content
+
+                    data.forEach((prescription: any, index: number) => {
+                        let status = "";
+                        if (prescription.remaining > 0) {
+                            status = `<span class="badge bg-success">Active</span>`; // ✅ Can refill
+                        } else if (prescription.total_authorised_qty > 0) {
+                            status = `<span class="badge bg-warning">Needs Doctor Authorization</span>`; // ⏳ Doctor Approval Needed
+                        } else {
+                            status = `<span class="badge bg-danger">Expired</span>`; // ❌ No refills left
+                        }
+
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                        <td>${prescription.dispensed_day}</td>
+                        <td><a href="#" class="rx-link" data-index="${index}">${prescription.rxnum}</a></td>
+                        <td>${prescription.name}</td>
+                        <td>${status}</td> <!-- Dynamically added status -->
+                    `;
+                        tableBody.appendChild(row);
+                    });
+
+                    // Show details of the FIRST prescription by default
+                    updatePrescriptionDetails(data[0]);
+
+                    // Attach Click Event to Rx Numbers
+                    document.querySelectorAll(".rx-link").forEach(link => {
+                        link.addEventListener("click", (event) => {
+                            event.preventDefault();
+                            const target = event.target as HTMLAnchorElement;
+                            const index = parseInt(target.dataset.index as string);
+                            updatePrescriptionDetails(data[index]);
+                        });
+                    });
+
+                } else {
+                    tableBody.innerHTML = `<tr><td colspan="4">No prescriptions found.</td></tr>`;
+                }
+            })
+            .catch(error => console.error("Error:", error));
+    }
+
+    function updatePrescriptionDetails(prescription: any) {
+        console.log("Updating prescription details:", prescription);
+
+        // Set basic prescription details
+        document.getElementById("detailRxNumber")!.textContent = prescription.rxnum;
+        document.getElementById("detailDoctor")!.textContent = prescription.doctor_cspo;
+        document.getElementById("detailIssued")!.textContent = prescription.dispensed_day;
+
+        // Determine status dynamically
+        let status = "";
+        if (prescription.remaining > 0) {
+            status = `<span class="badge bg-success">Active</span>`; // ✅ Can refill
+        } else if (prescription.total_authorised_qty > 0) {
+            status = `<span class="badge bg-warning">Needs Doctor Authorization</span>`; // ⏳ Doctor Approval Needed
+        } else {
+            status = `<span class="badge bg-danger">Expired</span>`; // ❌ No refills left
+        }
+
+        // Update table with medication details
+        const detailBody = document.getElementById("prescriptionDetailTBody") as HTMLTableSectionElement;
+        detailBody.innerHTML = ""; // Clear existing data
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+        <td>${prescription.name}</td>
+        <td>${prescription.day_qty} per day</td>
+        <td>${prescription.remaining} remaining</td>
+    `;
+        detailBody.appendChild(row);
+
+        // Add refill button logic based on status
+        const refillButton = document.getElementById("refillPageLink") as HTMLAnchorElement;
+        if (prescription.remaining > 0) {
+            refillButton.style.display = "inline-block"; // Show refill button
+            refillButton.href = `/prescription_request?rxnum=${prescription.rxnum}`;
+            refillButton.textContent = "Request Refill";
+        } else if (prescription.total_authorised_qty > 0) {
+            refillButton.style.display = "inline-block"; // Show doctor approval request
+            refillButton.href = `/doctor_approval_request?rxnum=${prescription.rxnum}`;
+            refillButton.textContent = "Request Doctor Authorization";
+        } else {
+            refillButton.style.display = "none"; // Hide refill button if expired
+        }
+    }
+
+
+
+
+
+
+
     function Display404Page(){
         console.log("Display404Page() Called..");
     }
@@ -381,6 +534,8 @@
             case "add_patient": return DisplayAddPatient;
             case "enter_prescription": return DisplayEnterPrescription;
             case "prescription_request": return DisplayPrescriptionRequestPage;
+            case "request_process": return DisplayRequestProcessPage;
+            case "patient_dashboard": return DisplayPatientDashboardPage;
             case "404": return Display404Page;
             default:
                 console.error("ERROR: Callback doesn't exist for ActiveLink - " + router.ActiveLink);
