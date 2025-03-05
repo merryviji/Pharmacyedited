@@ -155,7 +155,8 @@ const server = http.createServer(async (req, res) => {
         }
 
     }else if (path.startsWith("/api/patients/email/") && req.method === "GET") {
-        const email = decodeURIComponent(path.replace("/api/patients/email/", ""));
+
+        const email = path.replace("/api/patients/email/", "");
 
 
         try {
@@ -177,9 +178,10 @@ const server = http.createServer(async (req, res) => {
         }
     }
 
-    // Fetch ALL refill requests (For Admin Panel)
+    // Fetch ALL refill requests (For Admin)
     else if (path === "/api/refill_requests" && req.method === "GET") {
         try {
+
             const result = await pool.query(`
             SELECT refill_requests.id, refill_requests.request_date, refill_requests.patient_id, refill_requests.rxnum, 
                    refill_requests.status, prescription.name AS medication
@@ -199,8 +201,9 @@ const server = http.createServer(async (req, res) => {
     }
 
     // Fetch refill requests for patient
+        // .startWith() check if it matches the request start with this
     else if (path.startsWith("/api/refill_requests/") && req.method === "GET") {
-        const patientId = path.split("/").pop(); // Extract patient ID from URL
+        const patientId = path.split("/").pop(); // Extract patient ID which at the last
 
         if (!patientId) {
             res.writeHead(400, { "Content-Type": "application/json" });
@@ -229,11 +232,11 @@ const server = http.createServer(async (req, res) => {
 
 
     else if (path.startsWith("/api/prescriptions/") && req.method === "GET") {
-        const patientId = path.split("/").pop(); // Extract patient ID from the URL
+        const patientId = path.split("/").pop(); // Extract patient ID
 
-        console.log(`Fetching prescriptions for patient ID: ${patientId}`);
 
         try {
+            // $1 placeholder
             const result = await pool.query("SELECT * FROM prescription WHERE patient_id = $1", [patientId]);
 
             if (result.rows.length > 0) {
@@ -298,6 +301,7 @@ const server = http.createServer(async (req, res) => {
         const requestId = path.split("/").pop();
 
         let body = "";
+        // data arrives in some small pieces, so we use chunk here
         req.on("data", (chunk) => {
             body += chunk.toString();
         });

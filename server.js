@@ -123,7 +123,7 @@ const server = http_1.default.createServer(async (req, res) => {
         }
     }
     else if (path.startsWith("/api/patients/email/") && req.method === "GET") {
-        const email = decodeURIComponent(path.replace("/api/patients/email/", ""));
+        const email = path.replace("/api/patients/email/", "");
         try {
             const query = "SELECT * FROM patients WHERE TRIM(LOWER(email_address)) = TRIM(LOWER($1))";
             const result = await pool.query(query, [email]);
