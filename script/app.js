@@ -287,7 +287,6 @@
             return response.json();
         })
             .then((data) => {
-            console.log("Fetched prescription data:", data);
             const tableBody = document.getElementById("rxRequest");
             if (!tableBody) {
                 console.error("Table body not found.");
@@ -302,13 +301,9 @@
                         status = `<span class="badge bg-success">Active</span>`;
                         action = `<button class="btn btn-primary refill-btn" data-rx="${prescription.rxnum}">Request Refill</button>`;
                     }
-                    else if (prescription.total_authorised_qty > 0) {
-                        status = `<span class="badge bg-warning">Needs Doctor Authorization</span>`;
-                        action = `<button class="btn btn-danger approval-btn" data-rx="${prescription.rxnum}">Request Doctor Approval</button>`;
-                    }
                     else {
-                        status = `<span class="badge bg-danger">Expired</span>`;
-                        action = `<span class="text-muted">No Refills</span>`;
+                        status = `<span class="badge bg-danger">Inactive</span>`;
+                        action = `<button class="btn btn-primary refill-btn" data-rx="${prescription.rxnum}">Request Renew</button>`;
                     }
                     const row = document.createElement("tr");
                     row.innerHTML = `
@@ -335,14 +330,6 @@
                         }
                     });
                 });
-                document.querySelectorAll(".approval-btn").forEach(button => {
-                    button.addEventListener("click", function () {
-                        const rxnum = this.dataset.rx;
-                        if (rxnum) {
-                            requestDoctorApproval(rxnum);
-                        }
-                    });
-                });
             }
             else {
                 tableBody.innerHTML = `<tr><td colspan="10">No prescriptions found.</td></tr>`;
@@ -358,15 +345,6 @@
             location.reload();
         })
             .catch(error => console.error("Error requesting refill:", error));
-    }
-    function requestDoctorApproval(rxnum) {
-        fetch(`/api/doctor_approval/${rxnum}`, { method: "POST" })
-            .then(response => response.json())
-            .then(data => {
-            alert(data.message);
-            location.reload();
-        })
-            .catch(error => console.error("Error requesting doctor approval:", error));
     }
     function DisplayRequestProcessPage() {
         console.log("Called DisplayRequestProcessPage()");
@@ -403,7 +381,6 @@
             return response.json();
         })
             .then((data) => {
-            console.log("Fetched prescription data:", data);
             const tableBody = document.getElementById("prescriptionTableBody");
             if (!tableBody) {
                 console.error("Table body not found.");
@@ -416,11 +393,8 @@
                     if (prescription.remaining > 0) {
                         status = `<span class="badge bg-success">Active</span>`;
                     }
-                    else if (prescription.total_authorised_qty > 0) {
-                        status = `<span class="badge bg-warning">Needs Doctor Authorization</span>`;
-                    }
                     else {
-                        status = `<span class="badge bg-danger">Expired</span>`;
+                        status = `<span class="badge bg-danger">Inactive</span>`;
                     }
                     const row = document.createElement("tr");
                     row.innerHTML = `
@@ -456,11 +430,8 @@
         if (prescription.remaining > 0) {
             status = `<span class="badge bg-success">Active</span>`;
         }
-        else if (prescription.total_authorised_qty > 0) {
-            status = `<span class="badge bg-warning">Needs Doctor Authorization</span>`;
-        }
         else {
-            status = `<span class="badge bg-danger">Expired</span>`;
+            status = `<span class="badge bg-danger">Inactive</span>`;
         }
         const detailBody = document.getElementById("prescriptionDetailTBody");
         detailBody.innerHTML = "";
@@ -472,19 +443,9 @@
     `;
         detailBody.appendChild(row);
         const refillButton = document.getElementById("refillPageLink");
-        if (prescription.remaining > 0) {
-            refillButton.style.display = "inline-block";
-            refillButton.href = `/prescription_request?rxnum=${prescription.rxnum}`;
-            refillButton.textContent = "Request Refill";
-        }
-        else if (prescription.total_authorised_qty > 0) {
-            refillButton.style.display = "inline-block";
-            refillButton.href = `/doctor_approval_request?rxnum=${prescription.rxnum}`;
-            refillButton.textContent = "Request Doctor Authorization";
-        }
-        else {
-            refillButton.style.display = "none";
-        }
+        refillButton.style.display = "inline-block";
+        refillButton.href = `/prescription_request`;
+        refillButton.textContent = "Request Refill";
     }
     function Display404Page() {
         console.log("Display404Page() Called..");

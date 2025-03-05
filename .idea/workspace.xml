@@ -9,6 +9,8 @@
       <change beforePath="$PROJECT_DIR$/script/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/script/app.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/script/app.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/script/app.js.map" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/script/app.ts" beforeDir="false" afterPath="$PROJECT_DIR$/script/app.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/server.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/server.js.map" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server.ts" beforeDir="false" afterPath="$PROJECT_DIR$/server.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -109,7 +111,7 @@
       <workItem from="1740783441168" duration="5259000" />
       <workItem from="1740803435697" duration="133000" />
       <workItem from="1741039521495" duration="132000" />
-      <workItem from="1741039671079" duration="10308000" />
+      <workItem from="1741039671079" duration="12612000" />
     </task>
     <servers />
   </component>
