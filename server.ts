@@ -139,10 +139,13 @@ const server = http.createServer(async (req, res) => {
         });
     }
 
+    // condition check 1. url match, 2. request method is GET
     else if (path === "/api/patients" && req.method === "GET") {
         // Handle GET request to fetch all patients
         try {
+            // wait query finish then move to next step, run the query in pool(PostgreSQL pool)
             const result = await pool.query("SELECT * FROM patients");
+            // 200 in HTTP status code is "OK", response should be JSON
             res.writeHead(200, { "Content-Type": "application/json" });
             res.end(JSON.stringify(result.rows));
         } catch (error) {
@@ -150,6 +153,7 @@ const server = http.createServer(async (req, res) => {
             res.writeHead(500, { "Content-Type": "application/json" });
             res.end(JSON.stringify({ error: "Internal Server Error" }));
         }
+
     }else if (path.startsWith("/api/patients/email/") && req.method === "GET") {
         const email = decodeURIComponent(path.replace("/api/patients/email/", ""));
 
@@ -194,7 +198,7 @@ const server = http.createServer(async (req, res) => {
         }
     }
 
-// Fetch refill requests for a specific patient
+    // Fetch refill requests for patient
     else if (path.startsWith("/api/refill_requests/") && req.method === "GET") {
         const patientId = path.split("/").pop(); // Extract patient ID from URL
 
