@@ -12,6 +12,7 @@
       <change beforePath="$PROJECT_DIR$/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/server.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/server.js.map" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server.ts" beforeDir="false" afterPath="$PROJECT_DIR$/server.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/content/request_process.html" beforeDir="false" afterPath="$PROJECT_DIR$/views/content/request_process.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -111,7 +112,7 @@
       <workItem from="1740783441168" duration="5259000" />
       <workItem from="1740803435697" duration="133000" />
       <workItem from="1741039521495" duration="132000" />
-      <workItem from="1741039671079" duration="12612000" />
+      <workItem from="1741039671079" duration="19596000" />
     </task>
     <servers />
   </component>

@@ -173,6 +173,57 @@ const server = http.createServer(async (req, res) => {
         }
     }
 
+    // Fetch ALL refill requests (For Admin Panel)
+    else if (path === "/api/refill_requests" && req.method === "GET") {
+        try {
+            const result = await pool.query(`
+            SELECT refill_requests.id, refill_requests.request_date, refill_requests.patient_id, refill_requests.rxnum, 
+                   refill_requests.status, prescription.name AS medication
+            FROM refill_requests
+            JOIN prescription ON refill_requests.rxnum = prescription.rxnum
+            WHERE refill_requests.status = 'Pending' -- Only fetch pending requests
+            ORDER BY request_date DESC
+        `);
+
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify(result.rows));
+        } catch (error) {
+            console.error("Error fetching refill requests:", error);
+            res.writeHead(500, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ message: "Internal Server Error" }));
+        }
+    }
+
+// Fetch refill requests for a specific patient
+    else if (path.startsWith("/api/refill_requests/") && req.method === "GET") {
+        const patientId = path.split("/").pop(); // Extract patient ID from URL
+
+        if (!patientId) {
+            res.writeHead(400, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ message: "Invalid request. Missing patient ID." }));
+            return;
+        }
+
+        try {
+            const result = await pool.query(`
+            SELECT refill_requests.id, refill_requests.request_date, refill_requests.rxnum, refill_requests.status, 
+                   prescription.name AS medication
+            FROM refill_requests
+            JOIN prescription ON refill_requests.rxnum = prescription.rxnum
+            WHERE refill_requests.patient_id = $1
+            ORDER BY request_date DESC
+        `, [patientId]);
+
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify(result.rows));
+        } catch (error) {
+            console.error("Error fetching patient refill requests:", error);
+            res.writeHead(500, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ message: "Internal Server Error" }));
+        }
+    }
+
+
     else if (path.startsWith("/api/prescriptions/") && req.method === "GET") {
         const patientId = path.split("/").pop(); // Extract patient ID from the URL
 
@@ -194,6 +245,75 @@ const server = http.createServer(async (req, res) => {
             res.end(JSON.stringify({ error: "Internal Server Error" }));
         }
     }
+
+    // Handle refill request submission
+    else if (path.startsWith("/api/refill/") && req.method === "POST") {
+        const rxnum = path.split("/").pop(); // Extract RxNum from URL
+        const userSession = req.headers["user-session"]; // Get user session from headers
+
+        if (!rxnum || !userSession) {
+            res.writeHead(400, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ message: "Invalid request. Missing RxNum or session." }));
+            return;
+        }
+
+        try {
+            const user = JSON.parse(userSession as string);
+            const userEmail = user.username.trim();
+
+            // Find Patient ID from email
+            const patientResult = await pool.query("SELECT id FROM patients WHERE email_address = $1", [userEmail]);
+            if (patientResult.rows.length === 0) {
+                res.writeHead(404, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ message: "Patient not found." }));
+                return;
+            }
+
+            const patientId = patientResult.rows[0].id;
+
+            // Insert refill request
+            const insertQuery = `
+            INSERT INTO refill_requests (rxnum, patient_id)
+            VALUES ($1, $2)
+            RETURNING *;
+        `;
+            const result = await pool.query(insertQuery, [rxnum, patientId]);
+
+            res.writeHead(201, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ message: "Refill request submitted successfully.", request: result.rows[0] }));
+
+        } catch (error) {
+            console.error("Error handling refill request:", error);
+            res.writeHead(500, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ message: "Internal Server Error" }));
+        }
+    }
+
+
+    else if (path.startsWith("/api/refill_requests/") && req.method === "PUT") {
+        const requestId = path.split("/").pop();
+
+        let body = "";
+        req.on("data", (chunk) => {
+            body += chunk.toString();
+        });
+
+        req.on("end", async () => {
+            try {
+                const { status } = JSON.parse(body);
+                await pool.query("UPDATE refill_requests SET status = $1 WHERE id = $2", [status, requestId]);
+
+                res.writeHead(200, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ message: `Request ${status}` }));
+            } catch (error) {
+                console.error("Error updating refill request:", error);
+                res.writeHead(500, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ message: "Internal Server Error" }));
+            }
+        });
+    }
+
+
 
 
     else if (path.startsWith("/api/patients/") && req.method === "GET") {

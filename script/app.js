@@ -266,58 +266,58 @@
         const user = JSON.parse(userSession);
         const userEmail = user.username.trim();
         fetch(`/api/patients/email/${userEmail}`)
-            .then(response => {
-            if (!response.ok) {
-                throw new Error("Failed to fetch patient ID");
-            }
-            return response.json();
-        })
+            .then(response => response.json())
             .then(patient => {
             if (!patient || !patient.id) {
                 throw new Error("Patient record not found.");
             }
             const patientId = patient.id;
             console.log("Retrieved Patient ID:", patientId);
-            return fetch(`/api/prescriptions/${patientId}`);
+            return Promise.all([
+                fetch(`/api/prescriptions/${patientId}`).then(res => res.json()),
+                fetch(`/api/refill_requests/${patientId}`).then(res => res.json())
+            ]);
         })
-            .then(response => {
-            if (!response.ok) {
-                throw new Error("Failed to fetch prescriptions");
-            }
-            return response.json();
-        })
-            .then((data) => {
+            .then(([prescriptions, refillRequests]) => {
+            console.log("Fetched prescription data:", prescriptions);
+            console.log("Fetched refill requests:", refillRequests);
             const tableBody = document.getElementById("rxRequest");
             if (!tableBody) {
                 console.error("Table body not found.");
                 return;
             }
-            if (data.length > 0) {
+            if (prescriptions.length > 0) {
                 tableBody.innerHTML = "";
-                data.forEach((prescription) => {
+                prescriptions.forEach((prescription) => {
                     let status = "";
                     let action = "";
+                    const existingRequest = refillRequests.find((req) => req.rxnum === prescription.rxnum);
                     if (prescription.remaining > 0) {
                         status = `<span class="badge bg-success">Active</span>`;
-                        action = `<button class="btn btn-primary refill-btn" data-rx="${prescription.rxnum}">Request Refill</button>`;
+                        if (existingRequest) {
+                            action = `<button class="btn btn-secondary" disabled>Pending</button>`;
+                        }
+                        else {
+                            action = `<button class="btn btn-primary refill-btn" data-rx="${prescription.rxnum}">Request Refill</button>`;
+                        }
                     }
                     else {
                         status = `<span class="badge bg-danger">Inactive</span>`;
-                        action = `<button class="btn btn-primary refill-btn" data-rx="${prescription.rxnum}">Request Renew</button>`;
+                        action = `<span class="text-muted">No Refill Available</span>`;
                     }
                     const row = document.createElement("tr");
                     row.innerHTML = `
-                            <td>${new Date(prescription.dispensed_day).toLocaleDateString()}</td>
-                            <td>${prescription.rxnum}</td>
-                            <td>${prescription.name}</td>
-                            <td>${prescription.qty}</td>
-                            <td>${prescription.day_qty}</td>
-                            <td>${prescription.remaining}</td>
-                            <td>${prescription.total_authorised_qty}</td>
-                            <td>${status}</td>
-                            <td>${action}</td>
-                        `;
-                    document.getElementById("rxRequest")?.appendChild(row);
+                        <td>${new Date(prescription.dispensed_day).toLocaleDateString()}</td>
+                        <td>${prescription.rxnum}</td>
+                        <td>${prescription.name}</td>
+                        <td>${prescription.qty}</td>
+                        <td>${prescription.day_qty}</td>
+                        <td>${prescription.remaining}</td>
+                        <td>${prescription.total_authorised_qty}</td>
+                        <td>${status}</td>
+                        <td>${action}</td>
+                    `;
+                    tableBody.appendChild(row);
                 });
                 document.querySelectorAll(".refill-btn").forEach((button) => {
                     button.addEventListener("click", (event) => {
@@ -338,16 +338,19 @@
             .catch(error => console.error("Error:", error));
     }
     function requestRefill(rxnum) {
-        fetch(`/api/refill/${rxnum}`, { method: "POST" })
+        fetch(`/api/refill/${rxnum}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "user-session": sessionStorage.getItem("user") || ""
+            }
+        })
             .then(response => response.json())
             .then(data => {
             alert(data.message);
             location.reload();
         })
             .catch(error => console.error("Error requesting refill:", error));
-    }
-    function DisplayRequestProcessPage() {
-        console.log("Called DisplayRequestProcessPage()");
     }
     function DisplayPatientDashboardPage() {
         console.log("DisplayPatientDashboardPage is running");
@@ -424,7 +427,7 @@
     function updatePrescriptionDetails(prescription) {
         console.log("Updating prescription details:", prescription);
         document.getElementById("detailRxNumber").textContent = prescription.rxnum;
-        document.getElementById("detailDoctor").textContent = prescription.doctor_cspo;
+        document.getElementById("detailDoctor").textContent = prescription.doctor_cpso;
         document.getElementById("detailIssued").textContent = prescription.dispensed_day;
         let status = "";
         if (prescription.remaining > 0) {
@@ -446,6 +449,73 @@
         refillButton.style.display = "inline-block";
         refillButton.href = `/prescription_request`;
         refillButton.textContent = "Request Refill";
+    }
+    function DisplayRequestProcessPage() {
+        console.log("DisplayRequestProcessPage is running");
+        fetch("/api/refill_requests")
+            .then(response => {
+            if (!response.ok) {
+                throw new Error("Failed to fetch refill requests");
+            }
+            return response.json();
+        })
+            .then((requests) => {
+            console.log("Fetched refill requests:", requests);
+            const tableBody = document.getElementById("requestProcess");
+            if (!tableBody) {
+                console.error("Table body not found.");
+                return;
+            }
+            tableBody.innerHTML = "";
+            const pendingRequests = requests.filter((request) => request.status === "Pending");
+            if (pendingRequests.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="5">No pending requests.</td></tr>`;
+                return;
+            }
+            pendingRequests.forEach((request) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${new Date(request.request_date).toLocaleDateString()}</td>
+                    <td>${request.patient_id}</td>
+                    <td>${request.rxnum}</td>
+                    <td>${request.medication}</td>
+                    <td>
+                        <button class="btn btn-success approve-btn" data-id="${request.id}">Approve</button>
+                        <button class="btn btn-danger reject-btn" data-id="${request.id}">Reject</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+            document.querySelectorAll(".approve-btn").forEach(button => {
+                button.addEventListener("click", (event) => {
+                    const requestId = event.currentTarget.dataset.id;
+                    processRefillRequest(requestId, "Approved");
+                });
+            });
+            document.querySelectorAll(".reject-btn").forEach(button => {
+                button.addEventListener("click", (event) => {
+                    const requestId = event.currentTarget.dataset.id;
+                    processRefillRequest(requestId, "Rejected");
+                });
+            });
+        })
+            .catch(error => console.error("Error fetching refill requests:", error));
+    }
+    function processRefillRequest(requestId, status) {
+        fetch(`/api/refill_requests/${requestId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status })
+        })
+            .then(response => response.json())
+            .then(data => {
+            console.log(`Request ${status}:`, data);
+            const row = document.querySelector(`button[data-id="${requestId}"]`)?.closest("tr");
+            if (row) {
+                row.querySelector("td:last-child").innerHTML = `<span class="badge bg-${status === "Approved" ? "success" : "danger"}">${status}</span>`;
+            }
+        })
+            .catch(error => console.error(`Error updating request status:`, error));
     }
     function Display404Page() {
         console.log("Display404Page() Called..");
