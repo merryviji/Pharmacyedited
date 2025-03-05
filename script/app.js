@@ -1,4 +1,5 @@
 "use strict";
+;
 (function () {
     function CheckLogin() {
         $("#login").html(`<a id="logout" class="nav-link" href="/login"> 
@@ -268,7 +269,7 @@
         fetch(`/api/patients/email/${userEmail}`)
             .then(response => response.json())
             .then(patient => {
-            if (!patient || !patient.id) {
+            if (!patient) {
                 throw new Error("Patient record not found.");
             }
             const patientId = patient.id;
@@ -279,8 +280,6 @@
             ]);
         })
             .then(([prescriptions, refillRequests]) => {
-            console.log("Fetched prescription data:", prescriptions);
-            console.log("Fetched refill requests:", refillRequests);
             const pastRequests = refillRequests.filter((req) => req.status !== "Pending");
             const tableBody = document.getElementById("rxRequest");
             if (!tableBody) {
@@ -309,16 +308,16 @@
                     }
                     const row = document.createElement("tr");
                     row.innerHTML = `
-                <td>${new Date(prescription.dispensed_day).toLocaleDateString()}</td>
-                <td>${prescription.rxnum}</td>
-                <td>${prescription.name}</td>
-                <td>${prescription.qty}</td>
-                <td>${prescription.day_qty}</td>
-                <td>${prescription.remaining}</td>
-                <td>${prescription.total_authorised_qty}</td>
-                <td>${status}</td>
-                <td>${action}</td>
-            `;
+                            <td>${new Date(prescription.dispensed_day).toLocaleDateString()}</td>
+                            <td>${prescription.rxnum}</td>
+                            <td>${prescription.name}</td>
+                            <td>${prescription.qty}</td>
+                            <td>${prescription.day_qty}</td>
+                            <td>${prescription.remaining}</td>
+                            <td>${prescription.total_authorised_qty}</td>
+                            <td>${status}</td>
+                            <td>${action}</td>
+                        `;
                     tableBody.appendChild(row);
                 });
                 document.querySelectorAll(".refill-btn").forEach((button) => {
@@ -356,7 +355,6 @@
             .catch(error => console.error("Error requesting refill:", error));
     }
     function DisplayRequestHistory(pastRequests) {
-        console.log("Displaying request history:", pastRequests);
         const historyTableBody = document.getElementById("requestHistory");
         if (!historyTableBody) {
             console.error("Request history table body not found.");
@@ -392,16 +390,15 @@
         fetch(`/api/patients/email/${userEmail}`)
             .then(response => {
             if (!response.ok) {
-                throw new Error("Failed to fetch patient ID");
+                throw new Error("Failed to fetch patient");
             }
             return response.json();
         })
             .then(patient => {
-            if (!patient || !patient.id) {
+            if (!patient) {
                 throw new Error("Patient record not found.");
             }
             const patientId = patient.id;
-            console.log("Retrieved Patient ID:", patientId);
             return fetch(`/api/prescriptions/${patientId}`);
         })
             .then(response => {
@@ -452,7 +449,6 @@
             .catch(error => console.error("Error:", error));
     }
     function updatePrescriptionDetails(prescription) {
-        console.log("Updating prescription details:", prescription);
         document.getElementById("detailRxNumber").textContent = prescription.rxnum;
         document.getElementById("detailDoctor").textContent = prescription.doctor_cpso;
         document.getElementById("detailIssued").textContent = prescription.dispensed_day;
@@ -487,7 +483,6 @@
             return response.json();
         })
             .then((requests) => {
-            console.log("Fetched refill requests:", requests);
             const tableBody = document.getElementById("requestProcess");
             if (!tableBody) {
                 console.error("Table body not found.");
@@ -536,11 +531,8 @@
         })
             .then(response => response.json())
             .then(data => {
-            console.log(`Request ${status}:`, data);
-            const row = document.querySelector(`button[data-id="${requestId}"]`)?.closest("tr");
-            if (row) {
-                row.querySelector("td:last-child").innerHTML = `<span class="badge bg-${status === "Approved" ? "success" : "danger"}">${status}</span>`;
-            }
+            alert(data.message);
+            window.location.reload();
         })
             .catch(error => console.error(`Error updating request status:`, error));
     }

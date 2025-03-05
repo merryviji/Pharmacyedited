@@ -1,5 +1,6 @@
 "use strict";
 
+// tell ts the structure of this data table, and which data we expect in the function
 interface Prescription {
     rxnum: string;
     name: string;
@@ -12,7 +13,7 @@ interface Prescription {
 }
 
 
-type RefillRequest = {
+interface RefillRequest  {
     id: number;
     rxnum: string;
     patient_id: string;
@@ -376,28 +377,29 @@ type RefillRequest = {
         const user = JSON.parse(userSession);
         const userEmail = user.username.trim(); // Get email from session
 
-        // Step 1: Fetch Patient ID using Email
+        // Fetch Patient ID using Email
         fetch(`/api/patients/email/${userEmail}`)
             .then(response => response.json())
             .then(patient => {
-                if (!patient || !patient.id) {
+                if (!patient) {
                     throw new Error("Patient record not found.");
                 }
 
                 const patientId = patient.id;
                 console.log("Retrieved Patient ID:", patientId);
 
-                // Step 2: Fetch Prescriptions using Patient ID
+                // Fetch Prescriptions and requests using Patient ID
+                // Promise.all helps to run both
+                // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all
                 return Promise.all([
                     fetch(`/api/prescriptions/${patientId}`).then(res => res.json()),
                     fetch(`/api/refill_requests/${patientId}`).then(res => res.json()) // Fetch refill requests
                 ]);
             })
             .then(([prescriptions, refillRequests]) => {
-                console.log("Fetched prescription data:", prescriptions);
-                console.log("Fetched refill requests:", refillRequests);
 
-                // Separate pending and past requests
+                // Separate pending and past requests by filter, create an array for processed requests
+                // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
                 const pastRequests = refillRequests.filter((req: any) => req.status !== "Pending");
 
                 const tableBody = document.getElementById("rxRequest") as HTMLTableSectionElement | null;
@@ -413,13 +415,15 @@ type RefillRequest = {
                         let status: string = "";
                         let action: string = "";
 
-                        // Check if a refill request exists for this prescription
+                        // find if a existing request matches this prescription and check if it's still pending
+                        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find
                         const existingRequest = refillRequests.find((req: any) => req.rxnum === prescription.rxnum);
                         const isPending = existingRequest && existingRequest.status === "Pending";
 
                         if (prescription.remaining > 0) {
                             status = `<span class="badge bg-success">Active</span>`;
 
+                            // if the existing request still pendind, disable the button
                             if (isPending) {
                                 action = `<button class="btn btn-secondary" disabled>Pending</button>`;
                             } else {
@@ -432,16 +436,16 @@ type RefillRequest = {
 
                         const row = document.createElement("tr");
                         row.innerHTML = `
-                <td>${new Date(prescription.dispensed_day).toLocaleDateString()}</td>
-                <td>${prescription.rxnum}</td>
-                <td>${prescription.name}</td>
-                <td>${prescription.qty}</td>
-                <td>${prescription.day_qty}</td>
-                <td>${prescription.remaining}</td>
-                <td>${prescription.total_authorised_qty}</td>
-                <td>${status}</td>
-                <td>${action}</td>
-            `;
+                            <td>${new Date(prescription.dispensed_day).toLocaleDateString()}</td>
+                            <td>${prescription.rxnum}</td>
+                            <td>${prescription.name}</td>
+                            <td>${prescription.qty}</td>
+                            <td>${prescription.day_qty}</td>
+                            <td>${prescription.remaining}</td>
+                            <td>${prescription.total_authorised_qty}</td>
+                            <td>${status}</td>
+                            <td>${action}</td>
+                        `;
                         tableBody.appendChild(row);
                     });
 
@@ -469,9 +473,10 @@ type RefillRequest = {
     }
 
 
-// Function to handle refill request
+    // Function to handle refill request
     function requestRefill(rxnum: string) {
         fetch(`/api/refill/${rxnum}`, {
+            // use "POST" request to send data to server, json data in userSession
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -480,7 +485,9 @@ type RefillRequest = {
         })
             .then(response => response.json())
             .then(data => {
+                // message send by server to prompt user request send suceed
                 alert(data.message);
+                // reload the page
                 location.reload();
             })
             .catch(error => console.error("Error requesting refill:", error));
@@ -490,7 +497,6 @@ type RefillRequest = {
 
 
     function DisplayRequestHistory(pastRequests: any[]) {
-        console.log("Displaying request history:", pastRequests);
 
         const historyTableBody = document.getElementById("requestHistory") as HTMLTableSectionElement | null;
         if (!historyTableBody) {
@@ -531,34 +537,41 @@ type RefillRequest = {
     function DisplayPatientDashboardPage() {
         console.log("DisplayPatientDashboardPage is running");
 
-        // Get user session
+        // Get user session as string
+        // https://developer.mozilla.org/en-US/docs/Web/API/Window/sessionStorage
         const userSession = sessionStorage.getItem("user");
         if (!userSession) {
             alert("You need to log in first.");
+           // https://developer.mozilla.org/en-US/docs/Web/API/Window/location
             window.location.href = "/login";
             return;
         }
 
+        // convert userSession from string to json
         const user = JSON.parse(userSession);
-        const userEmail = user.username.trim(); // Get email from session
+        // get user email from userSession's username, trim can remove the space
+        const userEmail = user.username.trim();
 
-        // Step 1: Fetch Patient ID using Email
+        // Fetch Patient ID using Email
+        // use fetch() to make http request, in the () is the request url
+        // https://www.w3schools.com/js/js_api_fetch.asp
         fetch(`/api/patients/email/${userEmail}`)
             .then(response => {
                 if (!response.ok) {
-                    throw new Error("Failed to fetch patient ID");
+                    throw new Error("Failed to fetch patient");
                 }
+                // convert from json to js object
                 return response.json();
             })
             .then(patient => {
-                if (!patient || !patient.id) {
+                // patient not found
+                if (!patient) {
                     throw new Error("Patient record not found.");
                 }
 
                 const patientId = patient.id; // Extract patient ID
-                console.log("Retrieved Patient ID:", patientId);
 
-                // Step 2: Fetch Prescriptions using Patient ID
+                // Fetch Prescriptions using Patient ID
                 return fetch(`/api/prescriptions/${patientId}`);
             })
             .then(response => {
@@ -568,8 +581,7 @@ type RefillRequest = {
                 return response.json();
             })
             .then((data) => {
-                // console.log("Fetched prescription data:", data);
-
+                // find the tbody with ID prescriptionTableBody, and insert it
                 const tableBody = document.getElementById("prescriptionTableBody") as HTMLTableSectionElement | null;
                 if (!tableBody) {
                     console.error("Table body not found.");
@@ -577,8 +589,10 @@ type RefillRequest = {
                 }
 
                 if (data.length > 0) {
+                    // https://developer.mozilla.org/en-US/docs/Web/API/Element/innerHTML
                     tableBody.innerHTML = ""; // Clear previous content
 
+                    // loops data in prescription
                     data.forEach((prescription: any, index: number) => {
                         let status = "";
                         if (prescription.remaining > 0) {
@@ -587,13 +601,16 @@ type RefillRequest = {
                             status = `<span class="badge bg-danger">Inactive</span>`;
                         }
 
+                        // create table row
                         const row = document.createElement("tr");
+                        // fill the row with data
                         row.innerHTML = `
                         <td>${new Date(prescription.dispensed_day).toLocaleDateString()}</td>
                         <td><a href="#" class="rx-link" data-index="${index}">${prescription.rxnum}</a></td>
                         <td>${prescription.name}</td>
                         <td>${status}</td> <!-- Dynamically added status -->
                     `;
+                        // Add a new row
                         tableBody.appendChild(row);
                     });
 
@@ -618,9 +635,10 @@ type RefillRequest = {
     }
 
     function updatePrescriptionDetails(prescription: any) {
-        console.log("Updating prescription details:", prescription);
 
-        // Set basic prescription details
+        // Set prescription details
+        // textContent used to add text
+        // https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent
         document.getElementById("detailRxNumber")!.textContent = prescription.rxnum;
         document.getElementById("detailDoctor")!.textContent = prescription.doctor_cpso;
         document.getElementById("detailIssued")!.textContent = prescription.dispensed_day;
@@ -668,7 +686,6 @@ type RefillRequest = {
                 return response.json();
             })
             .then((requests) => {
-                console.log("Fetched refill requests:", requests);
 
                 // Get the table body element
                 const tableBody = document.getElementById("requestProcess") as HTMLTableSectionElement | null;
@@ -722,24 +739,19 @@ type RefillRequest = {
             .catch(error => console.error("Error fetching refill requests:", error));
     }
 
-// Function to handle approving/rejecting requests
+    // Function to handle approving/rejecting requests
     function processRefillRequest(requestId: string, status: string) {
         fetch(`/api/refill_requests/${requestId}`, {
+            // send PUT request to update the requests data, json data, update status
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ status })
         })
             .then(response => response.json())
             .then(data => {
-                console.log(`Request ${status}:`, data);
+                alert(data.message);
+                window.location.reload();
 
-                // Find the row containing this request
-                const row = document.querySelector(`button[data-id="${requestId}"]`)?.closest("tr");
-
-                if (row) {
-                    // Replace buttons with status text
-                    row.querySelector("td:last-child")!.innerHTML = `<span class="badge bg-${status === "Approved" ? "success" : "danger"}">${status}</span>`;
-                }
             })
             .catch(error => console.error(`Error updating request status:`, error));
     }
