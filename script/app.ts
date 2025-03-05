@@ -461,7 +461,7 @@ type RefillRequest = {
                     tableBody.innerHTML = `<tr><td colspan="10">No prescriptions found.</td></tr>`;
                 }
 
-                // ✅ Call function to display past refill requests
+                // Call function to display past refill requests
                 DisplayRequestHistory(pastRequests);
             })
 
