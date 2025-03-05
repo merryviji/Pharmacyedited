@@ -397,6 +397,9 @@ type RefillRequest = {
                 console.log("Fetched prescription data:", prescriptions);
                 console.log("Fetched refill requests:", refillRequests);
 
+                // Separate pending and past requests
+                const pastRequests = refillRequests.filter((req: any) => req.status !== "Pending");
+
                 const tableBody = document.getElementById("rxRequest") as HTMLTableSectionElement | null;
                 if (!tableBody) {
                     console.error("Table body not found.");
@@ -412,15 +415,14 @@ type RefillRequest = {
 
                         // Check if a refill request exists for this prescription
                         const existingRequest = refillRequests.find((req: any) => req.rxnum === prescription.rxnum);
+                        const isPending = existingRequest && existingRequest.status === "Pending";
 
                         if (prescription.remaining > 0) {
                             status = `<span class="badge bg-success">Active</span>`;
 
-                            if (existingRequest) {
-                                // If refill request exists, disable button
+                            if (isPending) {
                                 action = `<button class="btn btn-secondary" disabled>Pending</button>`;
                             } else {
-                                // If no refill request, allow clicking
                                 action = `<button class="btn btn-primary refill-btn" data-rx="${prescription.rxnum}">Request Refill</button>`;
                             }
                         } else {
@@ -430,16 +432,16 @@ type RefillRequest = {
 
                         const row = document.createElement("tr");
                         row.innerHTML = `
-                        <td>${new Date(prescription.dispensed_day).toLocaleDateString()}</td>
-                        <td>${prescription.rxnum}</td>
-                        <td>${prescription.name}</td>
-                        <td>${prescription.qty}</td>
-                        <td>${prescription.day_qty}</td>
-                        <td>${prescription.remaining}</td>
-                        <td>${prescription.total_authorised_qty}</td>
-                        <td>${status}</td>
-                        <td>${action}</td>
-                    `;
+                <td>${new Date(prescription.dispensed_day).toLocaleDateString()}</td>
+                <td>${prescription.rxnum}</td>
+                <td>${prescription.name}</td>
+                <td>${prescription.qty}</td>
+                <td>${prescription.day_qty}</td>
+                <td>${prescription.remaining}</td>
+                <td>${prescription.total_authorised_qty}</td>
+                <td>${status}</td>
+                <td>${action}</td>
+            `;
                         tableBody.appendChild(row);
                     });
 
@@ -458,7 +460,11 @@ type RefillRequest = {
                 } else {
                     tableBody.innerHTML = `<tr><td colspan="10">No prescriptions found.</td></tr>`;
                 }
+
+                // ✅ Call function to display past refill requests
+                DisplayRequestHistory(pastRequests);
             })
+
             .catch(error => console.error("Error:", error));
     }
 
@@ -479,6 +485,37 @@ type RefillRequest = {
             })
             .catch(error => console.error("Error requesting refill:", error));
     }
+
+
+
+
+    function DisplayRequestHistory(pastRequests: any[]) {
+        console.log("Displaying request history:", pastRequests);
+
+        const historyTableBody = document.getElementById("requestHistory") as HTMLTableSectionElement | null;
+        if (!historyTableBody) {
+            console.error("Request history table body not found.");
+            return;
+        }
+
+        historyTableBody.innerHTML = ""; // Clear existing history
+
+        if (pastRequests.length > 0) {
+            pastRequests.forEach((request) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                <td>${new Date(request.request_date).toLocaleDateString()}</td>
+                <td>${request.rxnum}</td>
+                <td>${request.medication}</td>
+                <td><span class="badge ${request.status === "Approved" ? "bg-success" : "bg-danger"}">${request.status}</span></td>
+            `;
+                historyTableBody.appendChild(row);
+            });
+        } else {
+            historyTableBody.innerHTML = `<tr><td colspan="4">No past refill requests found.</td></tr>`;
+        }
+    }
+
 
 
 

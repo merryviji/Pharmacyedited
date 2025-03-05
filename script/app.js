@@ -281,6 +281,7 @@
             .then(([prescriptions, refillRequests]) => {
             console.log("Fetched prescription data:", prescriptions);
             console.log("Fetched refill requests:", refillRequests);
+            const pastRequests = refillRequests.filter((req) => req.status !== "Pending");
             const tableBody = document.getElementById("rxRequest");
             if (!tableBody) {
                 console.error("Table body not found.");
@@ -292,9 +293,10 @@
                     let status = "";
                     let action = "";
                     const existingRequest = refillRequests.find((req) => req.rxnum === prescription.rxnum);
+                    const isPending = existingRequest && existingRequest.status === "Pending";
                     if (prescription.remaining > 0) {
                         status = `<span class="badge bg-success">Active</span>`;
-                        if (existingRequest) {
+                        if (isPending) {
                             action = `<button class="btn btn-secondary" disabled>Pending</button>`;
                         }
                         else {
@@ -307,16 +309,16 @@
                     }
                     const row = document.createElement("tr");
                     row.innerHTML = `
-                        <td>${new Date(prescription.dispensed_day).toLocaleDateString()}</td>
-                        <td>${prescription.rxnum}</td>
-                        <td>${prescription.name}</td>
-                        <td>${prescription.qty}</td>
-                        <td>${prescription.day_qty}</td>
-                        <td>${prescription.remaining}</td>
-                        <td>${prescription.total_authorised_qty}</td>
-                        <td>${status}</td>
-                        <td>${action}</td>
-                    `;
+                <td>${new Date(prescription.dispensed_day).toLocaleDateString()}</td>
+                <td>${prescription.rxnum}</td>
+                <td>${prescription.name}</td>
+                <td>${prescription.qty}</td>
+                <td>${prescription.day_qty}</td>
+                <td>${prescription.remaining}</td>
+                <td>${prescription.total_authorised_qty}</td>
+                <td>${status}</td>
+                <td>${action}</td>
+            `;
                     tableBody.appendChild(row);
                 });
                 document.querySelectorAll(".refill-btn").forEach((button) => {
@@ -334,6 +336,7 @@
             else {
                 tableBody.innerHTML = `<tr><td colspan="10">No prescriptions found.</td></tr>`;
             }
+            DisplayRequestHistory(pastRequests);
         })
             .catch(error => console.error("Error:", error));
     }
@@ -351,6 +354,30 @@
             location.reload();
         })
             .catch(error => console.error("Error requesting refill:", error));
+    }
+    function DisplayRequestHistory(pastRequests) {
+        console.log("Displaying request history:", pastRequests);
+        const historyTableBody = document.getElementById("requestHistory");
+        if (!historyTableBody) {
+            console.error("Request history table body not found.");
+            return;
+        }
+        historyTableBody.innerHTML = "";
+        if (pastRequests.length > 0) {
+            pastRequests.forEach((request) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                <td>${new Date(request.request_date).toLocaleDateString()}</td>
+                <td>${request.rxnum}</td>
+                <td>${request.medication}</td>
+                <td><span class="badge ${request.status === "Approved" ? "bg-success" : "bg-danger"}">${request.status}</span></td>
+            `;
+                historyTableBody.appendChild(row);
+            });
+        }
+        else {
+            historyTableBody.innerHTML = `<tr><td colspan="4">No past refill requests found.</td></tr>`;
+        }
     }
     function DisplayPatientDashboardPage() {
         console.log("DisplayPatientDashboardPage is running");
