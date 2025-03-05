@@ -249,6 +249,33 @@ const server = http_1.default.createServer(async (req, res) => {
         req.on("end", async () => {
             try {
                 const { status } = JSON.parse(body);
+                const requestResult = await pool.query("SELECT * FROM refill_requests WHERE id = $1", [requestId]);
+                if (requestResult.rows.length === 0) {
+                    res.writeHead(404, { "Content-Type": "application/json" });
+                    res.end(JSON.stringify({ message: "Request not found" }));
+                    return;
+                }
+                const { rxnum, patient_id } = requestResult.rows[0];
+                if (status === "Approved") {
+                    const prescriptionResult = await pool.query("SELECT * FROM prescription WHERE rxnum = $1 AND patient_id = $2", [rxnum, patient_id]);
+                    if (prescriptionResult.rows.length === 0) {
+                        res.writeHead(404, { "Content-Type": "application/json" });
+                        res.end(JSON.stringify({ message: "Prescription not found" }));
+                        return;
+                    }
+                    const { remaining, day_qty } = prescriptionResult.rows[0];
+                    if (remaining <= 0) {
+                        res.writeHead(400, { "Content-Type": "application/json" });
+                        res.end(JSON.stringify({ message: "No more refills available." }));
+                        return;
+                    }
+                    if (remaining < day_qty) {
+                        res.writeHead(400, { "Content-Type": "application/json" });
+                        res.end(JSON.stringify({ message: "Refill amount exceeds available quantity." }));
+                        return;
+                    }
+                    await pool.query("UPDATE prescription SET remaining = remaining - $1, dispensed_day = CURRENT_DATE WHERE rxnum = $2 AND patient_id = $3", [day_qty, rxnum, patient_id]);
+                }
                 await pool.query("UPDATE refill_requests SET status = $1 WHERE id = $2", [status, requestId]);
                 res.writeHead(200, { "Content-Type": "application/json" });
                 res.end(JSON.stringify({ message: `Request ${status}` }));
