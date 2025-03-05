@@ -24,34 +24,24 @@
 
 <script>
     console.log("Header script is running");
-        const userSession = sessionStorage.getItem("user");
-        console.log("User Session Data:", userSession);
+    const userSession = sessionStorage.getItem("user");
+    console.log("User Session Data:", userSession);
 
-        if (!userSession) {
-            console.log("No user logged in.");
-        }
+    // Parse the user session data to json
+    const user = JSON.parse(userSession);
+    const userRole = user.role.trim().toLowerCase(); // make them all lowercase
 
-        // Parse session data
-        const user = JSON.parse(userSession);
-        const userRole = user.role.trim().toLowerCase(); // Ensure case-insensitive check
+    if (userRole === "admin") {
+        //Admin pages control
+        document.getElementById("patient-dashboard").style.display = "none";
+        document.getElementById("prescription-request").style.display = "none";
+    } else if (userRole === "patient") {
+        //Patient pages control
 
-        if (userRole === "admin") {
-            // Admin should see only admin-related pages
-            document.getElementById("admin-dashboard").style.display = "block";
-            document.getElementById("patient-list").style.display = "block";
-            document.getElementById("request-process").style.display = "block";
-
-            document.getElementById("patient-dashboard").style.display = "none";
-            document.getElementById("prescription-request").style.display = "none";
-        } else if (userRole === "patient") {
-            // Patient should see only patient-related pages
-            document.getElementById("patient-dashboard").style.display = "block";
-            document.getElementById("prescription-request").style.display = "block";
-
-            document.getElementById("admin-dashboard").style.display = "none";
-            document.getElementById("patient-list").style.display = "none";
-            document.getElementById("request-process").style.display = "none";
-        }
+        document.getElementById("admin-dashboard").style.display = "none";
+        document.getElementById("patient-list").style.display = "none";
+        document.getElementById("request-process").style.display = "none";
+    }
 
 </script>
 
