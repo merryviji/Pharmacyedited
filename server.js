@@ -189,7 +189,6 @@ const server = http_1.default.createServer(async (req, res) => {
     }
     else if (path.startsWith("/api/prescriptions/") && req.method === "GET") {
         const patientId = path.split("/").pop();
-        console.log(`Fetching prescriptions for patient ID: ${patientId}`);
         try {
             const result = await pool.query("SELECT * FROM prescription WHERE patient_id = $1", [patientId]);
             if (result.rows.length > 0) {
